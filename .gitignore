@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+.ipynb_checkpoints/
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Los audios no van al repo (tamaño y licencia COSWARA/Virufy);
+# el notebook trabaja con data/features.csv, que sí está versionado
+cough_sounds/
+*.wav
+*.mp3
