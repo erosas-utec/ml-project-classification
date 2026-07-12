@@ -159,13 +159,22 @@ async function enviar(wav) {
   form.append('audio', wav, 'tos.wav');
   form.append('consent', consent.checked ? 'true' : 'false');
 
+  // Si tarda, aviso (p. ej. servidor "dormido"); y corto a los 60s para no colgarse
+  const hint = setTimeout(() => { estado.textContent = 'Esto puede tardar unos segundos…'; }, 4000);
+  const ctrl = new AbortController();
+  const limite = setTimeout(() => ctrl.abort(), 60000);
+
   try {
-    const r = await fetch('predict', { method: 'POST', body: form });
+    const r = await fetch('predict', { method: 'POST', body: form, signal: ctrl.signal });
     if (!r.ok) throw new Error(r.status);
     mostrarResultado(await r.json());
   } catch (e) {
     setEstado('idle');
-    estado.textContent = 'Hubo un error al analizar. Intenta de nuevo.';
+    estado.textContent = e.name === 'AbortError'
+      ? 'El análisis tardó demasiado. Revisa tu conexión e intenta de nuevo.'
+      : 'Hubo un error al analizar. Intenta de nuevo.';
+  } finally {
+    clearTimeout(hint); clearTimeout(limite);
   }
 }
 
@@ -201,6 +210,13 @@ function mostrarResultado(data) {
 
   setEstado('done');
 }
+
+// ===== Modal "¿Cómo se hizo?" =====
+const modal = document.getElementById('modal');
+document.getElementById('btnComoSeHizo').addEventListener('click', () => modal.showModal());
+document.getElementById('modalCerrar').addEventListener('click', () => modal.close());
+document.getElementById('modalOk').addEventListener('click', () => modal.close());
+modal.addEventListener('click', (e) => { if (e.target === modal) modal.close(); });  // clic en el fondo
 
 // PWA
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});

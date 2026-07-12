@@ -1,6 +1,6 @@
 {
-  "name": "ReSpira · Análisis acústico de tos",
-  "short_name": "ReSpira",
+  "name": "Aliento · Análisis acústico de tos",
+  "short_name": "Aliento",
   "description": "Demo educativo: analiza el sonido de la tos y estima el riesgo de COVID con IA.",
   "start_url": ".",
   "display": "standalone",

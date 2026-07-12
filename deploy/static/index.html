@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#eef2f8">
-  <meta name="description" content="ReSpira · Análisis acústico de tos con IA (demo educativo).">
-  <title>ReSpira · Análisis acústico de tos</title>
+  <meta name="description" content="Aliento · Análisis acústico de tos con IA (demo educativo).">
+  <title>Aliento · Análisis acústico de tos</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon-192.png">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -26,17 +26,20 @@
     <!-- ===== App bar ===== -->
     <header class="appbar">
       <div class="marca">
-        <span class="logo" aria-hidden="true">
-          <svg viewBox="0 0 44 44" width="40" height="40">
-            <rect x="1.5" y="1.5" width="41" height="41" rx="12"
-                  fill="url(#grad-marca)"/>
-            <path d="M8 22 h4 l3 -8 l5 16 l4 -12 l3 7 h9" fill="none"
-                  stroke="#fff" stroke-width="2.4" stroke-linecap="round"
-                  stroke-linejoin="round"/>
+        <span class="logo respira" aria-hidden="true">
+          <svg viewBox="0 0 44 44" width="42" height="42">
+            <rect x="1" y="1" width="42" height="42" rx="13" fill="url(#grad-marca)"/>
+            <!-- Pulmón estilizado: tráquea + dos lóbulos -->
+            <g fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 9 v7"/>
+              <path d="M22 16 h-4 M22 16 h4"/>
+              <path d="M18 16 c-5 1 -7 6 -7 11 c0 4 1 7 4 7 c2 0 3 -1 3 -4 v-14"/>
+              <path d="M26 16 c5 1 7 6 7 11 c0 4 -1 7 -4 7 c-2 0 -3 -1 -3 -4 v-14"/>
+            </g>
           </svg>
         </span>
         <span class="marca-texto">
-          <span class="marca-nombre">ReSpira</span>
+          <span class="marca-nombre">Aliento</span>
           <span class="marca-bajada">Análisis acústico de tos</span>
         </span>
       </div>
@@ -81,7 +84,7 @@
       </div>
 
       <!-- Resultado -->
-      <div id="resultado" class="resultado oculto" aria-live="polite">
+      <div id="resultado" class="resultado" aria-live="polite">
         <div class="medidor">
           <svg viewBox="0 0 120 120" width="150" height="150">
             <circle cx="60" cy="60" r="52" class="medidor-fondo"/>
@@ -105,7 +108,16 @@
 
     <!-- ===== Cómo funciona ===== -->
     <section class="card info" aria-label="Cómo funciona">
-      <h2 class="info-titulo">Cómo funciona</h2>
+      <div class="info-head">
+        <h2 class="info-titulo">Cómo funciona</h2>
+        <button id="btnComoSeHizo" class="link-info" type="button">
+          <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/>
+            <path d="M12 11 v5 M12 8 v.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          ¿Cómo se hizo?
+        </button>
+      </div>
       <ol class="pasos">
         <li>
           <span class="paso-ic" aria-hidden="true">
@@ -168,10 +180,34 @@
     </div>
 
     <footer class="footer">
-      ReSpira · Proyecto de Machine Learning — Maestría AI/DS, UTEC ·
+      Aliento · Proyecto de Machine Learning — Maestría AI/DS, UTEC ·
       No es un dispositivo médico.
     </footer>
   </div>
+
+  <!-- ===== Modal: ¿Cómo se hizo? ===== -->
+  <dialog id="modal" class="modal">
+    <div class="modal-head">
+      <h2>¿Cómo se hizo?</h2>
+      <button id="modalCerrar" class="modal-x" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+          <path d="M6 6 L18 18 M18 6 L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Explicado en simple, sin tecnicismos:</p>
+      <ul class="modal-lista">
+        <li><span class="modal-em">1</span><div><strong>Escuchamos muchas toses.</strong> Juntamos grabaciones de tos de personas que tenían COVID y de personas que no, de bases de datos públicas de investigación.</div></li>
+        <li><span class="modal-em">2</span><div><strong>Convertimos el sonido en números.</strong> Cada tos se resume en una especie de "huella" del sonido (su tono, su textura), parecido a cómo Shazam reconoce una canción.</div></li>
+        <li><span class="modal-em">3</span><div><strong>La computadora aprendió a diferenciarlas.</strong> Un modelo estadístico (un "SVM") estudió miles de esas huellas hasta encontrar qué diferencia una tos positiva de una negativa.</div></li>
+        <li><span class="modal-em">4</span><div><strong>Cuando toses, compara y estima.</strong> Toma tu tos, la compara con lo que aprendió y te da un porcentaje de qué tan parecida es a una tos positiva.</div></li>
+      </ul>
+      <p class="modal-nota"><strong>Ojo:</strong> acierta bastante con las toses negativas, pero se le escapan muchas positivas. Por eso <strong>no es un diagnóstico</strong> — es un proyecto educativo para aprender cómo la IA analiza sonidos. Ante cualquier duda de salud, hazte una prueba real.</p>
+      <p class="modal-priv">Tu grabación solo se guarda si marcas la casilla de consentimiento; si no, se usa para el análisis y se descarta.</p>
+    </div>
+    <button id="modalOk" class="btn-sec modal-ok">Entendido</button>
+  </dialog>
 
   <script src="app.js"></script>
 </body>
