@@ -1,0 +1,106 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --azul: #0d47a1;
+  --azul-claro: #1976d2;
+  --rojo: #c62828;
+  --verde: #2e7d32;
+  --gris: #607d8b;
+  --fondo: #f4f6fb;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--fondo);
+  color: #1a1a2e;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 24px 16px;
+}
+
+main {
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+h1 { font-size: 1.8rem; text-align: center; }
+.subtitulo { text-align: center; color: var(--gris); margin-top: -12px; }
+
+.disclaimer {
+  background: #fff8e1;
+  border: 1px solid #ffe082;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.tarjeta {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(13, 71, 161, 0.08);
+  text-align: center;
+}
+
+.btn-grabar {
+  width: 100%;
+  padding: 18px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--azul);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+.btn-grabar:hover { background: var(--azul-claro); }
+.btn-grabar:active { transform: scale(0.98); }
+.btn-grabar.grabando { background: var(--rojo); animation: pulso 1.2s infinite; }
+.btn-grabar:disabled { background: var(--gris); cursor: wait; }
+
+@keyframes pulso {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(198, 40, 40, 0.4); }
+  50% { box-shadow: 0 0 0 12px rgba(198, 40, 40, 0); }
+}
+
+.estado { margin-top: 14px; color: var(--gris); font-size: 0.9rem; min-height: 1.2em; }
+
+.resultado { margin-top: 20px; }
+.oculto { display: none; }
+
+.etiqueta { font-size: 1.5rem; font-weight: 700; margin-bottom: 12px; }
+.etiqueta.positivo { color: var(--rojo); }
+.etiqueta.negativo { color: var(--verde); }
+
+.barra {
+  height: 14px;
+  background: #e0e0e0;
+  border-radius: 7px;
+  overflow: hidden;
+}
+.barra-relleno {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--verde), #fbc02d, var(--rojo));
+  transition: width 0.6s ease;
+}
+.prob-texto { margin-top: 8px; font-size: 0.9rem; color: var(--gris); }
+
+.consentimiento {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 0.85rem;
+  color: #444;
+  padding: 0 4px;
+  cursor: pointer;
+}
+.consentimiento input { margin-top: 2px; width: 18px; height: 18px; }
+
+footer { text-align: center; color: var(--gris); font-size: 0.75rem; margin-top: 8px; }

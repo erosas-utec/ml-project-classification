@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="theme-color" content="#0d47a1">
+  <title>Detector de tos · Demo</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <h1>🫁 Detector de tos</h1>
+    <p class="subtitulo">Clasificación COVID a partir del sonido de la tos</p>
+
+    <div class="disclaimer">
+      ⚠️ <strong>Demo educativo, no es un diagnóstico.</strong> Este proyecto de curso
+      no reemplaza una prueba médica. No tomes decisiones de salud con este resultado.
+    </div>
+
+    <div class="tarjeta">
+      <button id="btnGrabar" class="btn-grabar">🎤 Grabar tos</button>
+      <p id="estado" class="estado">Toca el botón y tose 1 o 2 veces cerca del micrófono.</p>
+
+      <div id="resultado" class="resultado oculto">
+        <div id="etiqueta" class="etiqueta"></div>
+        <div class="barra"><div id="barraProb" class="barra-relleno"></div></div>
+        <div id="probTexto" class="prob-texto"></div>
+      </div>
+    </div>
+
+    <label class="consentimiento">
+      <input type="checkbox" id="consent">
+      <span>Permito guardar mi grabación de forma anónima para mejorar el modelo.</span>
+    </label>
+
+    <footer>Proyecto de Machine Learning · Maestría AI/DS UTEC</footer>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

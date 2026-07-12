@@ -1,0 +1,11 @@
+# Versiones fijas (las mismas con las que entrené y exporté el modelo).
+# scikit-learn debe coincidir para poder cargar model.joblib sin problemas.
+fastapi==0.139.0
+uvicorn[standard]==0.51.0
+python-multipart==0.0.32
+librosa==0.11.0
+soundfile==0.14.0
+scikit-learn==1.8.0
+numpy==2.4.6
+joblib==1.5.3
+supabase==2.31.0

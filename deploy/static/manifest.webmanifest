@@ -1,0 +1,14 @@
+{
+  "name": "Detector de tos COVID (demo)",
+  "short_name": "Tos COVID",
+  "description": "Demo educativo: clasifica el sonido de la tos como COVID positivo o negativo.",
+  "start_url": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4f6fb",
+  "theme_color": "#0d47a1",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
