@@ -1,7 +1,8 @@
-// Service worker mínimo: cachea el "cascarón" de la app para que abra offline
-// e instalable como PWA. NO cacheo /predict (siempre necesita el servidor).
-const CACHE = 'tos-covid-v1';
+// Service worker: cachea el "cascarón" para que la PWA abra offline e instalable.
+// NO cacheo /predict (siempre necesita el servidor).
+const CACHE = 'respira-v2';
 const ARCHIVOS = ['.', 'index.html', 'style.css', 'app.js', 'manifest.webmanifest',
+                  'fonts/inter-400.woff2', 'fonts/inter-600.woff2', 'fonts/inter-700.woff2',
                   'icons/icon-192.png', 'icons/icon-512.png'];
 
 self.addEventListener('install', (e) => {
@@ -17,7 +18,6 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
-  // Las llamadas al backend nunca se cachean
   if (url.pathname.endsWith('/predict') || url.pathname.endsWith('/health')) return;
   e.respondWith(caches.match(e.request).then((r) => r || fetch(e.request)));
 });

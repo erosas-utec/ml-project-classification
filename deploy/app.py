@@ -28,6 +28,7 @@ from features import FEATURE_COLUMNS, extraer_features
 # no se registran (la PWA no instala). Fuerzo los MIME correctos para todos los entornos.
 mimetypes.add_type('text/javascript', '.js')
 mimetypes.add_type('application/manifest+json', '.webmanifest')
+mimetypes.add_type('font/woff2', '.woff2')
 
 BASE_DIR = Path(__file__).resolve().parent
 MODEL_DIR = BASE_DIR / 'model'
