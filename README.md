@@ -87,6 +87,8 @@ El modelo mejorado detecta 24 de 48 positivos y 228 de 242 negativos. El accurac
 
 ## Demo (web app)
 
+**Demo en vivo: https://ml-project-classification.onrender.com**
+
 La carpeta `deploy/` contiene «Aliento», una web app (FastAPI + PWA) que graba una tos y estima el riesgo con el modelo entrenado. Es un **demo educativo, no un diagnóstico**. Instrucciones de despliegue en `deploy/README.md`.
 
 ## Dataset
