@@ -1,0 +1,9 @@
+modelo,class_weight,accuracy,balanced_acc,precision,recall,f1
+Regresion Logistica,ninguno,0.9,0.537,0.399,0.089,0.142
+Regresion Logistica,balanced,0.668,0.597,0.148,0.51,0.229
+SVM,ninguno,0.905,0.615,0.522,0.255,0.339
+SVM,balanced,0.895,0.613,0.428,0.265,0.322
+Arbol de Decision,ninguno,0.858,0.581,0.229,0.238,0.233
+Arbol de Decision,balanced,0.84,0.543,0.18,0.177,0.177
+Random Forest,ninguno,0.908,0.52,0.6,0.04,0.074
+Random Forest,balanced,0.905,0.505,0.2,0.01,0.019

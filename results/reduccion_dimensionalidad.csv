@@ -1,0 +1,4 @@
+representacion,accuracy,balanced_acc,precision,recall,f1
+MFCC (40),0.905,0.615,0.522,0.255,0.339
+PCA (30 comp.),0.901,0.616,0.471,0.264,0.336
+LDA (1 comp.),0.911,0.561,0.775,0.129,0.21
