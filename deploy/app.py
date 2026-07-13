@@ -22,7 +22,9 @@ from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from features import FEATURE_COLUMNS, extraer_features
+from features import FEATURE_COLUMNS, cargar, features_de_senal
+
+RMS_MIN = 0.02   # por debajo de esto se considera silencio/ruido (no hubo tos)
 
 # En Windows el registro a veces mapea .js a text/plain, y así los service workers
 # no se registran (la PWA no instala). Fuerzo los MIME correctos para todos los entornos.
@@ -63,15 +65,21 @@ def predict(audio: UploadFile = File(...),
             consent: str = Form('false'),
             genero: str = Form(''),
             edad: str = Form('')):
-    # Leo el audio que mandó el navegador y saco las features
+    # Leo el audio que mandó el navegador y lo cargo
     audio_bytes = audio.file.read()
     try:
-        features = extraer_features(io.BytesIO(audio_bytes))
+        senal = cargar(io.BytesIO(audio_bytes))
     except Exception as e:
         return JSONResponse(status_code=400,
                             content={'error': f'No pude leer el audio: {e}'})
 
+    # Guarda de silencio: si la energia es muy baja, no hubo una tos que analizar
+    rms = float(np.sqrt(np.mean(senal ** 2))) if senal.size else 0.0
+    if rms < RMS_MIN:
+        return {'sin_tos': True}
+
     # Escalo y predigo (misma cadena que en el notebook)
+    features = features_de_senal(senal)
     x = scaler.transform(features.reshape(1, -1))
     pred = int(modelo.predict(x)[0])
     prob_covid = float(modelo.predict_proba(x)[0][1])

@@ -88,6 +88,17 @@ async function detener() {
     estado.textContent = 'Grabación muy corta. Mantén la grabación mientras toses.';
     return;
   }
+
+  // Guarda de silencio: si casi no hubo sonido, no es una tos que analizar
+  let suma = 0;
+  for (const c of chunks) for (let i = 0; i < c.length; i++) suma += c[i] * c[i];
+  const rms = Math.sqrt(suma / muestras);
+  if (rms < 0.02) {
+    setEstado('idle');
+    estado.textContent = 'No detectamos una tos. Acércate al micrófono y tose 1–2 veces.';
+    return;
+  }
+
   enviar(construirWav(chunks, sampleRate));
 }
 
@@ -167,7 +178,13 @@ async function enviar(wav) {
   try {
     const r = await fetch('predict', { method: 'POST', body: form, signal: ctrl.signal });
     if (!r.ok) throw new Error(r.status);
-    mostrarResultado(await r.json());
+    const data = await r.json();
+    if (data.sin_tos) {   // el backend no detectó una tos (silencio/ruido)
+      setEstado('idle');
+      estado.textContent = 'No detectamos una tos. Acércate al micrófono y tose 1–2 veces.';
+      return;
+    }
+    mostrarResultado(data);
   } catch (e) {
     setEstado('idle');
     estado.textContent = e.name === 'AbortError'
