@@ -41,19 +41,30 @@ CLASES = meta['clases']   # {'0': 'Negative', '1': 'Positive'}
 
 app = FastAPI(title='Detector de tos COVID (demo educativo)')
 
+# Precalentamiento: se fuerza la primera inicializacion de librosa en el arranque
+# (y no en la primera peticion del usuario), para que /predict responda rapido.
+try:
+    import librosa as _lb
+    _lb.feature.mfcc(y=np.zeros(16000, dtype='float32'), sr=16000, n_mfcc=4)
+except Exception:
+    pass
+
 
 @app.get('/health')
 def health():
     return {'status': 'ok', 'modelo': meta['modelo']}
 
 
+# Nota: se define como funcion sincrona (no async) a proposito. FastAPI ejecuta los
+# endpoints 'def' en un hilo aparte, de modo que el trabajo pesado de librosa no
+# bloquea el bucle de eventos y el /health sigue respondiendo (evita reinicios en Render).
 @app.post('/predict')
-async def predict(audio: UploadFile = File(...),
-                  consent: str = Form('false'),
-                  genero: str = Form(''),
-                  edad: str = Form('')):
+def predict(audio: UploadFile = File(...),
+            consent: str = Form('false'),
+            genero: str = Form(''),
+            edad: str = Form('')):
     # Leo el audio que mandó el navegador y saco las features
-    audio_bytes = await audio.read()
+    audio_bytes = audio.file.read()
     try:
         features = extraer_features(io.BytesIO(audio_bytes))
     except Exception as e:
