@@ -24,7 +24,9 @@ from fastapi.staticfiles import StaticFiles
 
 from features import FEATURE_COLUMNS, cargar, features_de_senal
 
-RMS_MIN = 0.02   # por debajo de esto se considera silencio/ruido (no hubo tos)
+# Amplitud pico minima para considerar que hubo una tos. Se usa el PICO (no el RMS)
+# porque una tos es un evento breve y fuerte: su pico no se diluye con la duracion.
+PEAK_MIN = 0.04
 
 # En Windows el registro a veces mapea .js a text/plain, y así los service workers
 # no se registran (la PWA no instala). Fuerzo los MIME correctos para todos los entornos.
@@ -73,9 +75,9 @@ def predict(audio: UploadFile = File(...),
         return JSONResponse(status_code=400,
                             content={'error': f'No pude leer el audio: {e}'})
 
-    # Guarda de silencio: si la energia es muy baja, no hubo una tos que analizar
-    rms = float(np.sqrt(np.mean(senal ** 2))) if senal.size else 0.0
-    if rms < RMS_MIN:
+    # Guarda de silencio: si no hubo un sonido fuerte (pico bajo), no fue una tos
+    peak = float(np.max(np.abs(senal))) if senal.size else 0.0
+    if peak < PEAK_MIN:
         return {'sin_tos': True}
 
     # Escalo y predigo (misma cadena que en el notebook)

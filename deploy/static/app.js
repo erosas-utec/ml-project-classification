@@ -24,7 +24,8 @@ let grabando = false;
 let audioContext, source, processor, analyser, stream;
 let chunks = [];
 let sampleRate = 44100;
-let rafId = null, timerId = null, tInicio = 0;
+let rafId = null, timerId = null, autoStopId = null, tInicio = 0;
+const AUTO_STOP_MS = 6000;   // la grabacion se detiene sola a los 6 s (una tos es breve)
 
 function setEstado(s) { analizador.dataset.state = s; }
 
@@ -66,17 +67,19 @@ async function iniciar() {
 
   grabando = true;
   setEstado('rec');
-  estado.textContent = 'Grabando… tose y toca de nuevo para detener.';
+  estado.textContent = 'Grabando… tose 1–2 veces (se detiene solo).';
   tInicio = performance.now();
   timerEl.classList.remove('oculto');
   actualizarTimer();
   dibujarOnda();
+  autoStopId = setTimeout(() => { if (grabando) detener(); }, AUTO_STOP_MS);
 }
 
 async function detener() {
   grabando = false;
   if (rafId) cancelAnimationFrame(rafId);
   if (timerId) clearTimeout(timerId);
+  if (autoStopId) clearTimeout(autoStopId);
   timerEl.classList.add('oculto');
   processor.disconnect(); source.disconnect(); analyser.disconnect();
   stream.getTracks().forEach((t) => t.stop());
@@ -89,11 +92,12 @@ async function detener() {
     return;
   }
 
-  // Guarda de silencio: si casi no hubo sonido, no es una tos que analizar
-  let suma = 0;
-  for (const c of chunks) for (let i = 0; i < c.length; i++) suma += c[i] * c[i];
-  const rms = Math.sqrt(suma / muestras);
-  if (rms < 0.02) {
+  // Guarda de silencio: una tos es un pico fuerte; si el pico es bajo, no hubo tos
+  let pico = 0;
+  for (const c of chunks) for (let i = 0; i < c.length; i++) {
+    const a = Math.abs(c[i]); if (a > pico) pico = a;
+  }
+  if (pico < 0.04) {
     setEstado('idle');
     estado.textContent = 'No detectamos una tos. Acércate al micrófono y tose 1–2 veces.';
     return;
