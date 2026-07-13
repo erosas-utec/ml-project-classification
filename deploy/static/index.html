@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#eef2f8">
+  <meta name="theme-color" content="#dff3ee">
   <meta name="description" content="Aliento · Análisis acústico de tos con IA (demo educativo).">
   <title>Aliento · Análisis acústico de tos</title>
   <link rel="manifest" href="manifest.webmanifest">
@@ -196,14 +196,14 @@
       </button>
     </div>
     <div class="modal-body">
-      <p>Explicado en simple, sin tecnicismos:</p>
+      <p class="modal-intro">Explicado en simple, sin tecnicismos:</p>
       <ul class="modal-lista">
         <li><span class="modal-em">1</span><div><strong>Escuchamos muchas toses.</strong> Juntamos grabaciones de tos de personas que tenían COVID y de personas que no, de bases de datos públicas de investigación.</div></li>
         <li><span class="modal-em">2</span><div><strong>Convertimos el sonido en números.</strong> Cada tos se resume en una especie de "huella" del sonido (su tono, su textura), parecido a cómo Shazam reconoce una canción.</div></li>
         <li><span class="modal-em">3</span><div><strong>La computadora aprendió a diferenciarlas.</strong> Un modelo estadístico (un "SVM") estudió miles de esas huellas hasta encontrar qué diferencia una tos positiva de una negativa.</div></li>
         <li><span class="modal-em">4</span><div><strong>Cuando toses, compara y estima.</strong> Toma tu tos, la compara con lo que aprendió y te da un porcentaje de qué tan parecida es a una tos positiva.</div></li>
       </ul>
-      <p class="modal-nota"><strong>Ojo:</strong> acierta bastante con las toses negativas, pero se le escapan muchas positivas. Por eso <strong>no es un diagnóstico</strong> — es un proyecto educativo para aprender cómo la IA analiza sonidos. Ante cualquier duda de salud, hazte una prueba real.</p>
+      <p class="modal-nota"><strong>Importante:</strong> el modelo identifica bien las toses negativas, pero todavía pasa por alto varios casos positivos. Por eso su resultado es <strong>orientativo y no constituye un diagnóstico</strong>. Es un proyecto académico para estudiar cómo la inteligencia artificial analiza sonidos; ante cualquier síntoma, consulta a un profesional de salud o realiza una prueba clínica.</p>
       <p class="modal-priv">Tu grabación solo se guarda si marcas la casilla de consentimiento; si no, se usa para el análisis y se descarta.</p>
     </div>
     <button id="modalOk" class="btn-sec modal-ok">Entendido</button>
