@@ -1,6 +1,6 @@
 // Service worker: cachea el "cascarón" para que la PWA abra offline e instalable.
 // NO cacheo /predict (siempre necesita el servidor).
-const CACHE = 'aliento-v7';
+const CACHE = 'aliento-v8';
 const ARCHIVOS = ['.', 'index.html', 'style.css', 'app.js', 'manifest.webmanifest',
                   'fonts/inter-400.woff2', 'fonts/inter-600.woff2', 'fonts/inter-700.woff2',
                   'img/utec-logo.png', 'icons/icon-192.png', 'icons/icon-512.png'];

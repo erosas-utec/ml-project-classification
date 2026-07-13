@@ -207,9 +207,14 @@ body {
 .nota svg { flex:0 0 auto; color:var(--brand); }
 .nota-modelo { color:var(--faint); padding-left:24px; }
 .footer { text-align:center; font-size:.72rem; color:var(--faint); padding:8px 8px 0; line-height:1.5; }
+.footer p { margin:1px 0; }
+.footer-links { display:flex; gap:16px; justify-content:center; margin-bottom:6px; }
+.footer-links a { color:var(--brand-ink); font-weight:600; font-size:.78rem; text-decoration:none; }
+.footer-links a:hover { text-decoration:underline; }
 
 /* ===== Modal "¿Cómo se hizo?" ===== */
-.modal { width:min(430px,92vw); max-height:86vh; padding:0; border:none; border-radius:26px;
+.modal { inset:0; margin:auto; width:min(430px,92vw); max-height:86vh; padding:0; border:none;
+  border-radius:26px;
   background:var(--surface-strong); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
   color:var(--text); box-shadow:var(--shadow-lg); overflow:hidden; }
 .modal::backdrop { background:rgba(8,30,26,.5); backdrop-filter:blur(4px); }
