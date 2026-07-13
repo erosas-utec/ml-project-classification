@@ -69,7 +69,7 @@ body {
 /* ===== App bar ===== */
 .appbar { display:flex; align-items:center; justify-content:space-between; padding:4px 2px 2px; }
 .marca { display:flex; align-items:center; gap:12px; }
-.logo { display:flex; filter:drop-shadow(0 6px 14px rgba(6,174,228,.38)); }
+.logo { display:block; height:42px; width:auto; filter:drop-shadow(0 3px 8px rgba(6,174,228,.22)); }
 .respira { animation:respirar 4.5s ease-in-out infinite; transform-origin:center; }
 @keyframes respirar { 0%,100%{transform:scale(1); opacity:.94} 50%{transform:scale(1.06); opacity:1} }
 .marca-nombre { display:block; font-weight:700; font-size:1.3rem; letter-spacing:-.02em; }

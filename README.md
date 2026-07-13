@@ -1,6 +1,6 @@
 # Clasificación de COVID-19 a partir del sonido de la tos
 
-Proyecto del curso **Machine Learning** — Maestría en AI/DS, UTEC (Prof. Cristian López Del Alamo).
+Proyecto del curso **Machine Learning** — Maestría en DS/AI, UTEC (Prof. Cristian López Del Alamo).
 
 **Integrantes:** Roger Reátegui Soto, Erick Rosas Pisfil, Yemar Puma Huamán
 

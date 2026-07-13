@@ -1,11 +1,12 @@
 ---
-title: Detector De Tos COVID
+title: Aliento
 emoji: 🫁
 colorFrom: blue
-colorTo: indigo
+colorTo: gray
 sdk: docker
 app_port: 7860
 pinned: false
+short_description: Analisis acustico de tos - demo educativo (UTEC)
 ---
 
 # Detector de tos COVID — Web App (demo)
