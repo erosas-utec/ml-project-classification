@@ -25,7 +25,10 @@ let audioContext, source, processor, analyser, stream;
 let chunks = [];
 let sampleRate = 44100;
 let rafId = null, timerId = null, autoStopId = null, tInicio = 0;
-const AUTO_STOP_MS = 6000;   // la grabacion se detiene sola a los 6 s (una tos es breve)
+let tosDetectada = false;
+const AUTO_STOP_MS = 6000;    // tope: la grabacion se detiene sola a los 6 s
+const STOP_TRAS_TOS_MS = 1200; // si ya se escucho la tos, se detiene 1.2 s despues
+const PICO_MIN = 0.03;         // pico minimo absoluto para considerar que hubo tos
 
 function setEstado(s) { analizador.dataset.state = s; }
 
@@ -44,19 +47,40 @@ btnDeNuevo.addEventListener('click', () => setEstado('idle'));
 // ===== Grabación =====
 async function iniciar() {
   try {
-    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    // Se pide el microfono SIN procesamiento (sin supresion de ruido ni control de
+    // ganancia): esos filtros atenuan una tos al tratarla como ruido impulsivo.
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+    });
   } catch (e) {
     estado.textContent = 'No pude acceder al micrófono. Revisa los permisos.';
     return;
   }
   chunks = [];
+  tosDetectada = false;
   audioContext = new (window.AudioContext || window.webkitAudioContext)();
   sampleRate = audioContext.sampleRate;
   source = audioContext.createMediaStreamSource(stream);
 
-  // Rama 1: captura de PCM para el WAV
+  // Rama 1: captura de PCM para el WAV + deteccion en vivo de la tos (por pico)
   processor = audioContext.createScriptProcessor(4096, 1, 1);
-  processor.onaudioprocess = (e) => chunks.push(new Float32Array(e.inputBuffer.getChannelData(0)));
+  processor.onaudioprocess = (e) => {
+    const bloque = new Float32Array(e.inputBuffer.getChannelData(0));
+    chunks.push(bloque);
+    if (!tosDetectada && grabando) {
+      let pico = 0;
+      for (let i = 0; i < bloque.length; i++) {
+        const a = Math.abs(bloque[i]); if (a > pico) pico = a;
+      }
+      if (pico >= PICO_MIN) {
+        tosDetectada = true;
+        estado.textContent = 'Tos detectada, un momento…';
+        // ya se escucho la tos: se adelanta el cierre (no hace falta esperar los 6 s)
+        clearTimeout(autoStopId);
+        autoStopId = setTimeout(() => { if (grabando) detener(); }, STOP_TRAS_TOS_MS);
+      }
+    }
+  };
   source.connect(processor);
   processor.connect(audioContext.destination);
 
@@ -92,12 +116,18 @@ async function detener() {
     return;
   }
 
-  // Guarda de silencio: una tos es un pico fuerte; si el pico es bajo, no hubo tos
+  // Guarda de silencio: una tos es un pico fuerte; si el pico es bajo, no hubo tos.
+  // Tambien se acepta un pico menor si sobresale del ruido de fondo (mics con poca ganancia).
   let pico = 0;
+  const muestraFondo = [];
   for (const c of chunks) for (let i = 0; i < c.length; i++) {
     const a = Math.abs(c[i]); if (a > pico) pico = a;
+    if (i % 32 === 0) muestraFondo.push(a);   // submuestreo para estimar el fondo
   }
-  if (pico < 0.04) {
+  muestraFondo.sort();
+  const fondo = muestraFondo[Math.floor(muestraFondo.length / 2)] || 0;  // mediana
+  const hayTos = (pico >= PICO_MIN) || (pico >= 0.015 && pico >= 8 * fondo);
+  if (!hayTos) {
     setEstado('idle');
     estado.textContent = 'No detectamos una tos. Acércate al micrófono y tose 1–2 veces.';
     return;
@@ -174,10 +204,12 @@ async function enviar(wav) {
   form.append('audio', wav, 'tos.wav');
   form.append('consent', consent.checked ? 'true' : 'false');
 
-  // Si tarda, aviso (p. ej. servidor "dormido"); y corto a los 60s para no colgarse
-  const hint = setTimeout(() => { estado.textContent = 'Esto puede tardar unos segundos…'; }, 4000);
+  // Si tarda, aviso (p. ej. servidor "dormido"); y corto a los 120s para no colgarse
+  const hint = setTimeout(() => {
+    estado.textContent = 'El servidor gratuito estaba dormido; puede tardar hasta un minuto…';
+  }, 8000);
   const ctrl = new AbortController();
-  const limite = setTimeout(() => ctrl.abort(), 60000);
+  const limite = setTimeout(() => ctrl.abort(), 120000);
 
   try {
     const r = await fetch('predict', { method: 'POST', body: form, signal: ctrl.signal });
@@ -238,6 +270,10 @@ document.getElementById('btnComoSeHizo').addEventListener('click', () => modal.s
 document.getElementById('modalCerrar').addEventListener('click', () => modal.close());
 document.getElementById('modalOk').addEventListener('click', () => modal.close());
 modal.addEventListener('click', (e) => { if (e.target === modal) modal.close(); });  // clic en el fondo
+
+// Warm-up: al abrir la pagina se hace un ping al servidor. Si el servicio gratuito
+// estaba dormido, despierta mientras el usuario lee, y el analisis ya sale rapido.
+fetch('health', { cache: 'no-store' }).catch(() => {});
 
 // PWA
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});

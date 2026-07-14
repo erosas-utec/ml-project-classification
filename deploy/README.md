@@ -87,5 +87,8 @@ Sin estas variables la app funciona igual, solo que no guarda nada.
 ## Notas
 
 - El primer acceso tras inactividad puede tardar ~1 min (el servicio free se duerme).
+  Para evitarlo, el workflow `.github/workflows/keep-alive.yml` hace un ping a `/health`
+  cada 10 minutos y mantiene el servicio despierto. Ademas, la pagina hace un ping al
+  cargar, de modo que el servidor despierta mientras el usuario se prepara.
 - La precisión en vivo será menor que en el test del paper (micrófono, ruido, otra forma
   de toser). Por eso se recogen datos con consentimiento: para mejorar el modelo.

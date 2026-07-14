@@ -26,7 +26,10 @@ from features import FEATURE_COLUMNS, cargar, features_de_senal
 
 # Amplitud pico minima para considerar que hubo una tos. Se usa el PICO (no el RMS)
 # porque una tos es un evento breve y fuerte: su pico no se diluye con la duracion.
-PEAK_MIN = 0.04
+# Ademas se acepta un pico menor si sobresale claramente del ruido de fondo
+# (microfonos con poca ganancia): pico >= 8 veces la mediana de |senal|.
+PEAK_MIN = 0.03
+PEAK_MIN_RELATIVO = 0.015
 
 # En Windows el registro a veces mapea .js a text/plain, y así los service workers
 # no se registran (la PWA no instala). Fuerzo los MIME correctos para todos los entornos.
@@ -77,7 +80,9 @@ def predict(audio: UploadFile = File(...),
 
     # Guarda de silencio: si no hubo un sonido fuerte (pico bajo), no fue una tos
     peak = float(np.max(np.abs(senal))) if senal.size else 0.0
-    if peak < PEAK_MIN:
+    fondo = float(np.median(np.abs(senal))) if senal.size else 0.0
+    hay_tos = (peak >= PEAK_MIN) or (peak >= PEAK_MIN_RELATIVO and peak >= 8 * fondo)
+    if not hay_tos:
         return {'sin_tos': True}
 
     # Escalo y predigo (misma cadena que en el notebook)
