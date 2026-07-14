@@ -12,6 +12,9 @@ import io
 import os
 import json
 import uuid
+import time
+import threading
+import urllib.request
 import mimetypes
 import datetime
 from pathlib import Path
@@ -60,6 +63,26 @@ except Exception:
 @app.get('/health')
 def health():
     return {'status': 'ok', 'modelo': meta['modelo']}
+
+
+# Auto-keep-alive: en Render el servicio gratuito se duerme a los 15 min sin trafico.
+# Un hilo en segundo plano hace un ping a la propia URL publica cada 10 min para que
+# el servidor no se duerma y la demo responda siempre en ~2 s (sin arranque en frio).
+# Render expone su URL en RENDER_EXTERNAL_URL; en local esa variable no existe (no hace nada).
+def _mantener_despierto():
+    url = os.environ.get('RENDER_EXTERNAL_URL')
+    if not url:
+        return
+    while True:
+        time.sleep(600)
+        try:
+            urllib.request.urlopen(url.rstrip('/') + '/health', timeout=20)
+        except Exception:
+            pass
+
+
+if os.environ.get('RENDER_EXTERNAL_URL'):
+    threading.Thread(target=_mantener_despierto, daemon=True).start()
 
 
 # Nota: se define como funcion sincrona (no async) a proposito. FastAPI ejecuta los
