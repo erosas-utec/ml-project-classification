@@ -36,7 +36,7 @@ Lima, Per\'u}}
 \maketitle
 
 \begin{abstract}
-Este trabajo aborda la clasificaci\'on de pacientes como COVID-19 positivos o negativos empleando \'unicamente el sonido de su tos. A partir de las colecciones COSWARA y Virufy, con 1207 toses negativas y 150 positivas, cada grabaci\'on se representa con coeficientes cepstrales en las frecuencias de Mel (MFCC), resumidos mediante su media y desviaci\'on est\'andar. Se comparan cuatro modelos cl\'asicos (Regresi\'on Log\'istica, M\'aquinas de Vectores de Soporte, \'Arbol de Decisi\'on y K vecinos m\'as cercanos) y, adicionalmente, Random Forest, entrenados con validaci\'on cruzada de cinco particiones a nivel de paciente para evitar la fuga de datos. Dado el fuerte desbalance de clases (89/11), la evaluaci\'on prioriza el F1 y el recall de la clase positiva. El mejor modelo fue una SVM con kernel RBF. Se estudiaron varias estrategias de mejora; el ajuste del umbral de decisi\'on result\'o la m\'as efectiva, elevando el recall de positivos de 0.42 a 0.50 y la exactitud balanceada de 0.69 a 0.72 en el conjunto de prueba, con una p\'erdida m\'inima de exactitud global.
+Este trabajo aborda la clasificaci\'on de pacientes como COVID-19 positivos o negativos empleando \'unicamente el sonido de su tos. A partir de las colecciones COSWARA y Virufy, con 1207 toses negativas y 150 positivas, cada grabaci\'on se representa con coeficientes cepstrales en las frecuencias de Mel (MFCC), resumidos mediante su media y desviaci\'on est\'andar. Se comparan cuatro modelos cl\'asicos (Regresi\'on Log\'istica, M\'aquinas de Vectores de Soporte, \'Arbol de Decisi\'on y K vecinos m\'as cercanos) y, adicionalmente, Random Forest, entrenados con validaci\'on cruzada de cinco particiones a nivel de paciente para evitar la fuga de datos. Dado el fuerte desbalance de clases (89/11), la evaluaci\'on prioriza el F1 y el recall de la clase positiva. El mejor modelo fue una SVM con kernel RBF. Enriquecer el vector con descriptores espectrales y ajustar el umbral de decisi\'on mejoraron la detecci\'on de la clase positiva, elevando en el conjunto de prueba el recall de positivos de 0.42 a 0.60, el F1 de 0.53 a 0.69 y la exactitud balanceada de 0.69 a 0.79, junto con la exactitud global de 0.88 a 0.91.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -189,7 +189,7 @@ La Fig.~\ref{fig:comp} compara la mejor configuraci\'on de cada modelo. El mejor
 \end{figure}
 
 \subsection{Estrategias de mejora}
-Partiendo del mejor modelo (SVM RBF), se evaluaron cuatro estrategias, todas con la misma validaci\'on cruzada. La reducci\'on de dimensionalidad con PCA (30 componentes que explican el 95\% de la varianza) y con LDA no mejor\'o el F1 (0.336 y 0.210, frente a 0.339 con los 40 MFCC). La ponderaci\'on de clases (\texttt{class\_weight=balanced}) tampoco lo mejor\'o (0.322), como se resume en la Tabla~\ref{tab:mejoras}, ni el uso de deltas de MFCC de primer y segundo orden (120 caracter\'isticas, F1 = 0.233). Estas estrategias se documentan como exploraci\'on y no se incorporan al modelo final.
+Partiendo del mejor modelo (SVM RBF), se evaluaron varias estrategias, todas con la misma validaci\'on cruzada. La reducci\'on de dimensionalidad con PCA (30 componentes que explican el 95\% de la varianza) y con LDA no mejor\'o el F1 (0.336 y 0.210, frente a 0.339 con los 40 MFCC); la ponderaci\'on de clases (\texttt{class\_weight=balanced}) tampoco (0.322), ni los deltas de MFCC de primer y segundo orden (120 caracter\'isticas, F1 = 0.233). En cambio, enriquecer el vector con descriptores espectrales de librosa (contraste espectral, tasa de cruces por cero, centroide, ancho de banda, rolloff y energ\'ia RMS, resumidos con media y desviaci\'on est\'andar) elev\'o el F1 de 0.339 a 0.375 (64 caracter\'isticas) y se incorpor\'o al modelo final. La Tabla~\ref{tab:mejoras} resume estas estrategias.
 
 \begin{table}[t]
 \caption{F1 de la clase positiva (validaci\'on cruzada) de las estrategias exploradas, sobre la SVM RBF}
@@ -199,41 +199,42 @@ Partiendo del mejor modelo (SVM RBF), se evaluaron cuatro estrategias, todas con
 \hline
 Estrategia & F1 \\
 \hline
-MFCC (40), l\'inea base            & \textbf{0.339} \\
+MFCC (40), l\'inea base            & 0.339 \\
 PCA (30 componentes)             & 0.336 \\
 LDA (1 componente)               & 0.210 \\
 Ponderaci\'on de clases           & 0.322 \\
 MFCC + deltas (120)              & 0.233 \\
+MFCC + espectral (64)            & \textbf{0.375} \\
 \hline
 \end{tabular}
 \end{table}
 
-La estrategia efectiva fue el ajuste del umbral de decisi\'on. Los modelos probabil\'isticos deciden por defecto con el umbral 0.5; bajo desbalance, ese valor no es \'optimo para detectar la clase minoritaria. Se obtuvieron las probabilidades fuera de muestra con validaci\'on cruzada y se seleccion\'o el umbral que maximiza el F1 de la clase positiva (Fig.~\ref{fig:umbral}), resultando en 0.25.
+La estrategia efectiva fue el ajuste del umbral de decisi\'on. Los modelos probabil\'isticos deciden por defecto con el umbral 0.5; bajo desbalance, ese valor no es \'optimo para detectar la clase minoritaria. Se obtuvieron las probabilidades fuera de muestra con validaci\'on cruzada y se seleccion\'o el umbral que maximiza el F1 de la clase positiva (Fig.~\ref{fig:umbral}), resultando en 0.33 sobre el vector enriquecido.
 
 \begin{figure}[t]
 \centerline{\includegraphics[width=0.85\columnwidth]{figures/umbral.png}}
-\caption{F1 de la clase positiva en funci\'on del umbral de decisi\'on (validaci\'on cruzada). El \'optimo (0.25) mejora claramente respecto al umbral por defecto 0.5.}
+\caption{F1 de la clase positiva en funci\'on del umbral de decisi\'on (validaci\'on cruzada). El \'optimo (0.33) mejora claramente respecto al umbral por defecto 0.5.}
 \label{fig:umbral}
 \end{figure}
 
 \subsection{Evaluaci\'on final en el conjunto de prueba}
-El modelo final (SVM RBF, $C=10$, con umbral 0.25) se entrena con todo el conjunto de entrenamiento y se eval\'ua una \'unica vez sobre el conjunto de prueba. La Tabla~\ref{tab:test} compara la l\'inea base (umbral 0.5) con el modelo mejorado. El ajuste del umbral eleva el recall de positivos de 0.417 a 0.500, el F1 de 0.533 a 0.558 y la exactitud balanceada de 0.694 a 0.721, con una ca\'ida m\'inima de la exactitud global (de 0.879 a 0.869).
+El modelo final (SVM RBF, $C=10$, sobre las 64 caracter\'isticas y con umbral 0.33) se entrena con todo el conjunto de entrenamiento y se eval\'ua una \'unica vez sobre el conjunto de prueba. La Tabla~\ref{tab:test} compara la l\'inea base (SVM sobre 40 MFCC con umbral 0.5) con el modelo final. La combinaci\'on de las caracter\'isticas espectrales y el ajuste del umbral eleva el recall de positivos de 0.417 a 0.604, el F1 de 0.533 a 0.690 y la exactitud balanceada de 0.694 a 0.788, aumentando adem\'as la exactitud global de 0.879 a 0.910.
 
 \begin{table}[t]
-\caption{Resultados en el conjunto de prueba (m\'etricas de la clase positiva)}
+\caption{Resultados en el conjunto de prueba (m\'etricas de la clase positiva). L\'inea base: SVM sobre 40 MFCC con umbral 0.5; final: SVM sobre 64 caracter\'isticas con umbral 0.33.}
 \label{tab:test}
 \centering\footnotesize
 \begin{tabular}{lccccc}
 \hline
 Modelo & Acc & BAcc & Prec & Rec & F1 \\
 \hline
-L\'inea base (umbral 0.5) & \textbf{0.879} & 0.694 & \textbf{0.741} & 0.417 & 0.533 \\
-Mejorado (umbral 0.25)   & 0.869 & \textbf{0.721} & 0.632 & \textbf{0.500} & \textbf{0.558} \\
+L\'inea base (40 MFCC) & 0.879 & 0.694 & 0.741 & 0.417 & 0.533 \\
+Final (64 feats)       & \textbf{0.910} & \textbf{0.788} & \textbf{0.806} & \textbf{0.604} & \textbf{0.690} \\
 \hline
 \end{tabular}
 \end{table}
 
-La matriz de confusi\'on del modelo mejorado (Fig.~\ref{fig:cm}) muestra que se detectan 24 de los 48 casos positivos (50.0\%) y se clasifican correctamente 228 de los 242 negativos (94.2\%). La exactitud total es de 0.869. El sistema es, por tanto, m\'as \'util para descartar la enfermedad que para confirmarla, lo cual es coherente con la dificultad de la tarea y con el uso exclusivo del sonido.
+La matriz de confusi\'on del modelo final (Fig.~\ref{fig:cm}) muestra que se detectan 29 de los 48 casos positivos (60.4\%) y se clasifican correctamente 235 de los 242 negativos (97.1\%). La exactitud total es de 0.910. El sistema es, por tanto, m\'as \'util para descartar la enfermedad que para confirmarla, lo cual es coherente con la dificultad de la tarea y con el uso exclusivo del sonido.
 
 \begin{figure}[t]
 \centerline{\includegraphics[width=0.8\columnwidth]{figures/matriz_confusion_test.png}}
@@ -252,7 +253,7 @@ Para poner el modelo en pr\'actica se desarroll\'o una aplicaci\'on web progresi
 \section{Conclusiones}
 Se compararon cuatro modelos cl\'asicos de clasificaci\'on, m\'as Random Forest, para detectar COVID-19 a partir del sonido de la tos, empleando caracter\'isticas MFCC y validaci\'on cruzada a nivel de paciente. El mejor modelo fue una SVM con kernel RBF. Se confirm\'o que, bajo un fuerte desbalance de clases, la exactitud es una m\'etrica enga\~nosa y que conviene guiarse por el F1 y el recall de la clase positiva.
 
-De las estrategias de mejora estudiadas, la reducci\'on de dimensionalidad, la ponderaci\'on de clases y los deltas de MFCC no aportaron mejoras en validaci\'on cruzada, mientras que el ajuste del umbral de decisi\'on s\'i mejor\'o de forma consistente la detecci\'on de positivos, con una p\'erdida m\'inima de exactitud global. El principal factor limitante es el desbalance del conjunto y el uso exclusivo del sonido; como trabajo futuro, disponer de m\'as grabaciones positivas o incorporar informaci\'on ac\'ustica adicional podr\'ia mejorar los resultados. Con ese prop\'osito, la aplicaci\'on web desarrollada recolecta nuevas grabaciones con consentimiento. Todo el proyecto emplea una semilla fija (\texttt{SEED = 42}) y separa los conjuntos a nivel de paciente, por lo que los resultados son reproducibles. El c\'odigo fuente completo, incluido el notebook, est\'a disponible en el repositorio p\'ublico \url{https://github.com/erosas-utec/ml-project-classification}.
+De las estrategias de mejora estudiadas, la reducci\'on de dimensionalidad, la ponderaci\'on de clases y los deltas de MFCC no aportaron mejoras en validaci\'on cruzada; en cambio, enriquecer el vector con descriptores espectrales y ajustar el umbral de decisi\'on s\'i mejoraron de forma consistente la detecci\'on de positivos, elevando el F1 de la clase positiva de 0.533 a 0.690 en el conjunto de prueba. El principal factor limitante es el desbalance del conjunto y el uso exclusivo del sonido; como trabajo futuro, disponer de m\'as grabaciones positivas o incorporar informaci\'on ac\'ustica adicional podr\'ia mejorar los resultados. Con ese prop\'osito, la aplicaci\'on web desarrollada recolecta nuevas grabaciones con consentimiento. Todo el proyecto emplea una semilla fija (\texttt{SEED = 42}) y separa los conjuntos a nivel de paciente, por lo que los resultados son reproducibles. El c\'odigo fuente completo, incluido el notebook, est\'a disponible en el repositorio p\'ublico \url{https://github.com/erosas-utec/ml-project-classification}.
 
 \begin{thebibliography}{00}
 \bibitem{coswara} N. Sharma \emph{et al.}, ``Coswara --- A database of breathing, cough, and voice sounds for COVID-19 diagnosis,'' en \emph{Proc. INTERSPEECH}, 2020, pp. 4811--4815.

@@ -55,7 +55,7 @@ Todo es determinista (`SEED=42`, split a nivel de paciente), de modo que reprodu
 
 ## Metodología (resumen)
 
-- **Features:** 20 MFCC por audio (librosa, resampleo a 22050 Hz), resumidos con media y desviación estándar → 40 features por audio.
+- **Features:** 20 MFCC + descriptores espectrales (contraste, cruces por cero, centroide, ancho de banda, rolloff, RMS) por audio (librosa, resampleo a 22050 Hz), resumidos con media y desviación estándar → 64 features por audio.
 - **Limpieza:** etiqueta tomada de la carpeta (hay typos "Postive"), se conservan los 48 mp3 positivos, se descarta `Unknown` (sin etiqueta).
 - **Split:** 80% train / 20% test, estratificado y **a nivel de paciente** (las grabaciones de un mismo paciente nunca se reparten entre train y test → sin fuga de datos).
 - **Validación:** `StratifiedGroupKFold` de 5 folds sobre el train.
@@ -74,16 +74,16 @@ Mejor configuración de cada modelo (validación cruzada de 5 folds; métricas d
 | Regresión Logística | C=1 | 0.900 | 0.537 | 0.399 | 0.089 | 0.142 |
 | Random Forest | 200 árboles | 0.908 | 0.520 | 0.600 | 0.040 | 0.074 |
 
-**Mejor modelo: SVM (RBF, C=10).** Se exploraron PCA/LDA, `class_weight` y deltas de MFCC (no mejoraron el F1 en CV). La estrategia que sí mejoró fue el **ajuste del umbral de decisión (0.5 → 0.25)**. En el conjunto de test:
+**Mejor modelo: SVM (RBF, C=10).** Se exploraron PCA/LDA, `class_weight` y deltas de MFCC (no mejoraron el F1 en CV). Las estrategias que sí mejoraron fueron **enriquecer el vector con descriptores espectrales** (40 → 64 features, F1 en CV 0.339 → 0.375) y el **ajuste del umbral de decisión (0.5 → 0.33)**. En el conjunto de test:
 
-| Métrica (test) | Base (umbral 0.5) | Mejorado (umbral 0.25) |
+| Métrica (test) | Base (40 MFCC, umbral 0.5) | Final (64 feats, umbral 0.33) |
 |---|---|---|
-| Recall (positivos) | 0.417 | **0.500** |
-| F1 (positivos) | 0.533 | **0.558** |
-| Balanced accuracy | 0.694 | **0.721** |
-| Accuracy | 0.879 | 0.869 |
+| Recall (positivos) | 0.417 | **0.604** |
+| F1 (positivos) | 0.533 | **0.690** |
+| Balanced accuracy | 0.694 | **0.788** |
+| Accuracy | 0.879 | **0.910** |
 
-El modelo mejorado detecta 24 de 48 positivos y 228 de 242 negativos. El accuracy por sí solo es engañoso con el desbalance 89/11; por eso la selección prioriza el F1/recall de la clase positiva.
+El modelo final detecta 29 de 48 positivos y 235 de 242 negativos. El accuracy por sí solo es engañoso con el desbalance 89/11; por eso la selección prioriza el F1/recall de la clase positiva.
 
 ## Demo (web app)
 

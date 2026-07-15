@@ -12,7 +12,7 @@ short_description: Analisis acustico de tos - demo educativo (UTEC)
 # Detector de tos COVID — Web App (demo)
 
 PWA que graba la tos del usuario y, con nuestro modelo del proyecto de Machine Learning
-(SVM sobre features MFCC), estima si es COVID positivo o negativo. Corre sobre el mismo
+(SVM sobre 64 features: MFCC + descriptores espectrales), estima si es COVID positivo o negativo. Corre sobre el mismo
 pipeline `librosa` + `scikit-learn` del notebook, así que la predicción es idéntica.
 
 ⚠️ **Demo educativo, no es un diagnóstico.** No reemplaza una prueba médica.
@@ -35,7 +35,7 @@ PWA (graba WAV en el navegador)  ──POST /predict──►  FastAPI (Render, 
 | Archivo | Qué es |
 |---|---|
 | `app.py` | Backend FastAPI (predicción + guardado opcional) |
-| `features.py` | Extracción MFCC compartida con el entrenamiento (garantiza paridad) |
+| `features.py` | Extracción de features (MFCC + espectrales, 64) compartida con el entrenamiento (garantiza paridad) |
 | `train_and_export.py` | Entrena y exporta `model/model.joblib` + `scaler.joblib` + `meta.json` |
 | `static/` | La PWA (index.html, app.js, style.css, manifest, sw.js, iconos) |
 | `Dockerfile` | Imagen del backend (escucha `$PORT`, o 7860 por defecto) |

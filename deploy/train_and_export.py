@@ -28,9 +28,13 @@ MODEL_DIR = Path(__file__).resolve().parent / 'model'
 
 def main():
     df = pd.read_csv(FEATURES_CSV, dtype={'id_paciente': str})
+    # El vector final combina los MFCC (features.csv) con los descriptores
+    # espectrales (features_espectral.csv); se unen por nombre de archivo.
+    esp = pd.read_csv(REPO_ROOT / 'data' / 'features_espectral.csv')
+    df = df.merge(esp, on='archivo')
     X = df[FEATURE_COLUMNS].values
     y = df['y'].values
-    print(f'Datos: {len(df)} audios ({y.mean():.1%} positivos)')
+    print(f'Datos: {len(df)} audios ({y.mean():.1%} positivos), {X.shape[1]} features')
 
     # Escalo y entreno el SVM ganador con TODOS los datos etiquetados
     scaler = StandardScaler().fit(X)

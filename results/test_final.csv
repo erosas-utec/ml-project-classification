@@ -1,3 +1,3 @@
 modelo,accuracy,balanced_acc,precision_pos,recall_pos,f1_pos
 "Linea base (SVM, umbral 0.5)",0.879,0.694,0.741,0.417,0.533
-"Mejorado (SVM, umbral 0.25)",0.869,0.721,0.632,0.5,0.558
+"Mejorado (SVM, umbral 0.33)",0.91,0.788,0.806,0.604,0.69
