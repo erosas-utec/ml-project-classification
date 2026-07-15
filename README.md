@@ -10,13 +10,14 @@ El objetivo es clasificar pacientes como COVID positivo o negativo usando única
 
 | Archivo / carpeta | Qué es |
 |---|---|
-| `covid_cough_classification.ipynb` | Notebook principal: limpieza → MFCC → 5 modelos → K-fold CV → mejora (umbral) → test |
-| `data/features.csv`, `data/features_delta.csv` | Features MFCC (y deltas) precomputadas — reproducen los experimentos **sin necesidad de los audios** |
+| `covid_cough_classification.ipynb` | Notebook principal: limpieza, extracción de features, cinco modelos con validación cruzada, estrategias de mejora y evaluación en test |
+| `data/*.csv` | Features precomputadas (MFCC, espectrales y deltas) — reproducen los experimentos **sin necesidad de los audios** |
 | `results/` | Tablas de métricas de cada experimento (CSV) |
 | `figures/` | Figuras generadas por el notebook |
 | `paper/` | Informe IEEE en LaTeX (`main.tex`, `main.pdf`, `figures/`) — ver `paper/README.md` |
-| `deploy/` | Web app (FastAPI + PWA «Aliento») para Hugging Face Spaces — ver `deploy/README.md` |
-| `insumos_originales/` | Material provisto para el proyecto: dataset (`cough_sounds/`), enunciado (`proyecto_lineamientos.pdf`) y plantilla IEEE (`ieee/`). **El audio no se versiona** (tamaño y licencia). |
+| `docs/` | Página de arquitectura y pipeline (GitHub Pages) |
+| `deploy/` | Web app (FastAPI + PWA «Aliento»), desplegada en Render — ver `deploy/README.md` |
+| `insumos_originales/` | Material provisto: dataset (`cough_sounds/`) y enunciado (`proyecto_lineamientos.pdf`). **El audio no se versiona** (tamaño y licencia). |
 | `requirements.txt` | Versiones exactas de las librerías |
 
 ## Cómo reproducir
@@ -28,30 +29,9 @@ El objetivo es clasificar pacientes como COVID positivo o negativo usando única
 
 **Semilla:** todo el proyecto usa `SEED = 42` (en `numpy`, el split train/test, el K-fold y todos los modelos); los resultados son reproducibles.
 
-## Flujo de trabajo (sincronización end-to-end)
+## Cómo se conecta todo
 
-Cadena de dependencias entre las piezas del proyecto:
-
-```
-insumos_originales/cough_sounds  ->  notebook  ->  data/*.csv + results/*.csv + figures/*.png
-                                                        |
-        +-----------------------------------------------+------------------------------------+
-        v                                               v                                    v
- deploy/train_and_export.py                     figures/ (se copian a paper/)        results/ (números del paper)
-        v                                               v
- deploy/model/*.joblib                          paper/main.tex -> paper/main.pdf
-        v
- app FastAPI (deploy/) -> Hugging Face Space
-```
-
-**Si editas el notebook (p. ej. para mejorar las métricas) y cambian los resultados, sincroniza así:**
-
-1. Ejecuta el notebook completo (Run All) → regenera `data/`, `results/` y `figures/`.
-2. Si cambió el modelo que usa la app: `cd deploy && python train_and_export.py` → regenera `deploy/model/`.
-3. Actualiza el paper: `cp figures/*.png paper/figures/` y ajusta los números de las tablas de `paper/main.tex` con los nuevos valores de `results/*.csv`; recompila (Overleaf o `pdflatex`).
-4. `git add -A && git commit && git push`.
-
-Todo es determinista (`SEED=42`, split a nivel de paciente), de modo que reproducir el notebook da exactamente los mismos números.
+El notebook es la fuente de verdad: procesa los audios y genera `data/*.csv`, `results/*.csv` y `figures/*.png`. De ahí salen los números y las figuras del paper (`paper/`) y el modelo que usa la web app (`deploy/train_and_export.py` → `deploy/model/`). Como todo es determinista (`SEED=42`, split a nivel de paciente), volver a correr el notebook produce los mismos resultados.
 
 ## Metodología (resumen)
 
@@ -85,9 +65,11 @@ Mejor configuración de cada modelo (validación cruzada de 5 folds; métricas d
 
 El modelo final detecta 29 de 48 positivos y 235 de 242 negativos. El accuracy por sí solo es engañoso con el desbalance 89/11; por eso la selección prioriza el F1/recall de la clase positiva.
 
-## Demo (web app)
+## Enlaces
 
-**Demo en vivo: https://ml-project-classification.onrender.com**
+- **Notebook:** [covid_cough_classification.ipynb](https://github.com/erosas-utec/ml-project-classification/blob/main/covid_cough_classification.ipynb)
+- **App en vivo:** https://ml-project-classification.onrender.com
+- **Arquitectura y pipeline (interactivo):** https://erosas-utec.github.io/ml-project-classification/
 
 La carpeta `deploy/` contiene «Aliento», una web app (FastAPI + PWA) que graba una tos y estima el riesgo con el modelo entrenado. Es un **demo educativo, no un diagnóstico**. Instrucciones de despliegue en `deploy/README.md`.
 
