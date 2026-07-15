@@ -239,6 +239,9 @@ body {
   border:1px solid color-mix(in srgb,var(--warning) 32%,transparent);
   border-radius:14px; padding:13px 15px; margin-top:18px; font-size:.86rem; line-height:1.55; }
 .modal-priv { color:var(--faint); font-size:.8rem; margin-top:14px; }
+.modal-mas { margin-top:14px; font-size:.85rem; }
+.modal-mas a { color:var(--brand-ink); font-weight:600; text-decoration:none; }
+.modal-mas a:hover { text-decoration:underline; }
 .modal-ok { margin:16px 24px 22px; align-self:stretch; text-align:center; }
 
 /* ===== Accesibilidad: movimiento reducido ===== */
